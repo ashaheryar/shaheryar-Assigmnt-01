@@ -1,12 +1,30 @@
 // Book Store 
 // Assignment-02 in javaScript 
-// Start time : 13  july 2016 2:42:09PM
-// End time :
+
+
+
+//.............................read me before tests review...........................
+//book name should not conntain "abc" tests requirment	// AddBook_spec.js  case 02
+//there should be one book name "css" tests requirment // AddBook_spec.js case 03
+//.................required input for search_spec.js................................
+///......................var booksName  = ["css"]...............var booksQuantity = [1];............var booksPrice = [2];
+
+
+//boosname should empty  test requirment // search_spec.js  case 01 
+//.................required input for search_spec.js................................
+///......................var booksName  = []...............var booksQuantity = [];............var booksPrice = [];
+
+
+// there should be css books more than 2  //submitOrder_spec.js  case 02
+//there should not html book in booksSold array and should be in booksName quantity 2 index 2 //submitOrder_spec.js case 04
+//......................................required input for submitOrder_spec.js/...................................
+//.................var booksName  = ["css","html"].............var booksQuantity = [3,2];.....var booksPrice = [2,13];
+
 
 // All variables
-var booksName  = [];//[ "javaScript" , "angular" , "html" , "css" , "jquery" , "python"];
-var booksQuantity = [];
-var booksPrice = [];
+var booksName  = ["css"];
+var booksQuantity = [1];
+var booksPrice = [1];
 var booksSold = [ "angular" ,"css"];
 var soldQuantity = [5, 5];
 var findName = "";
@@ -15,9 +33,9 @@ var salerName = ["Mr.Ali","Mr.Ahmed","Mr.Raza"];
 
 var saler= '[{"name":"Mr.Ali","quantity" : "3"},{"name":"Mr.Ahmed","quantity" : "0"},{"name":"Mr.Raza","quantity" : "7"}]';
 var json = JSON.parse(saler);
-var result  = json;
+var jsonresult  = json;
 
-saler
+
 
 // get best buyer from json
 function getBestBuyer() 
@@ -37,118 +55,92 @@ function getBestBuyer()
 // edit json on buying books to figure out best Buyer
 function editJson(buyerName,quantityBuy)
 {
+	
 	for (var i=0; i<saler.length; i++) {
-	  	if (result[i].name == buyerName) 
+	  	if (jsonresult[i].name == buyerName) 
 	  	{
-	    	result[i].quantity = Number(result[i].quantity) + quantityBuy;
+	    	jsonresult[i].quantity = Number(jsonresult[i].quantity) + quantityBuy;
 	    	break;
 	  	}
 	}
 }
 
-// loading dropdown  of saler and book Names 
-//udating saler
-function loadDropDown( buyerid,bookNameId)
+// validation should perform search or not
+function shouldSearch(searchString)
 {
-	//debugger;
-	//dropdown for buyer's name selection
-	$('select').empty();
-	$('#bQuantity').val("");
-	$('#bQuantityy').val("");
-	//$('#saler').empty();
-
-
-	var option = document.createElement("option");
-	option.value = -1;
-	option.text = "Select Your Name";
-	buyerid.options.add(option);
-	for(var i =0 ; i< salerName.length; i++)
-	{
-		// creating dropdown option element of select
-		option = document.createElement("option");
-		option.value = i;
-		option.text = salerName[i];
-		buyerid.options.add(option);
-	}
-
-	//dropdown for book name selection
+	var finalstring = "<h3 style='text-align:center'> Search Results</h3>";
+	var flage = true;
+	var htmlElements = "";
 
 	if(booksName.length == 0)
 	{
-		option = document.createElement("option");
-		option.value = -1;
-		option.text = "Store is empty \n Add book before buy";
-		bookNameId.options.add(option);
-	}
-	else
-	{
-		option = document.createElement("option");
-			option.value = -1;
-			option.text = "Select Book Name";
-			bookNameId.options.add(option);
-		for(var i =0 ; i< booksName.length; i++)
-		{
-			// creating dropdown option element of select
-			option = document.createElement("option");
-			option.value = i;
-			option.text = booksName[i];
-			bookNameId.options.add(option);
-		}
+		alert("Store is empty");
+		return false;
 	}
 
-	getBestBuyer() 
+	for(var i = 0 ; i<booksName.length; i++)
+	{
+		if(booksName[i] == undefined) 
+		{
+			break;
+		}
+		else if((booksName[i]).toLowerCase().includes(searchString))
+		{		
+			htmlElements = "<div class='col-md-3' style='margin-top:15px;'><div class='row'><img src='../image/1.jpg' height='270px' width='85%' alt='image not found'/></div><div class='row'><p style='font-weight: bold; font-size: 15px;'>"+booksName[i]+"</p> <p><span style='font-weight: bold; font-size: 13px'>Price:</span>"+booksPrice[i]+" .$</p></div> <div class='row'><input class='btn  btn-info' type='button' data-toggle='modal' data-target='#myModal' value='Buy'></input></div></div>";
+			finalstring = finalstring + htmlElements;
+			flage = false;
+		}	
+	}
+	if (flage)
+	{
+		alert("No Match found");
+		return false;
+	}
+
+	return finalstring;
+}
+
+// calling shouldSearch(searchString), also displaying results on web
+function search(searchString)
+{			
+	//in case user have All books record on web this line will erase div of id = showAllBooks
+	document.getElementById("showAllBooks").innerHTML = "";
+	document.getElementById("showResults").innerHTML = "";
+
+	var div = document.getElementById("showResults");
+
+	var htmlCode = shouldSearch(searchString.toLowerCase());
+	if(htmlCode != false)
+	{
+		div.innerHTML = htmlCode;
+		$('html, body').animate({
+        scrollTop: $("#showSearchResult").offset().top
+    	}, 1500);
+	}
 
 }
 
-// will work on page load
-$(document).ready(function()
-{
- 	loadDropDown( document.getElementById("saler"),document.getElementById("bookName"));
-});
 
-// dealing  buy Books 
-function submitOrder(bookName,bquantity,bbuyer)
-{
-	//debugger;
-	
-	var index = bookName.value;
+
+function submitOrder(index,quantity,buyer)
+{ 
 	var name = booksName[index];
 
 
 	//using to find index name in SoldBook Array
-	// findName is gloa=ble variable
+	// findName is global variable
 	findName = name;
-	var quantity = Number(bquantity.value); 
+	if(index == -1 || quantity == 0 || buyer == -1 )
+	{
+		return true;
+	}
 	
-	if(index == -1 || quantity == 0 || bbuyer.value == -1 )
-	{
-		if(index == -1)
-		{
-			$("#bookName").tooltip('show');
-			
-		}
-		else if(quantity == 0)
-		{
-			$("#bQuantityy").tooltip('show');
-		}
-		else
-		{
-			$("#saler").tooltip('show');
-		}
-		return;
-	}
-
-	if(quantity <= 0)
-	{
-		return;
-	}
-
 	//not enough Stock for buying
 	if ((booksQuantity[index] - quantity)  < 0)
 	{
 		//no push will perform
 		alert("Not Enought Stoke is Availabe \n  Available Quantity is : " + booksQuantity[index]);
-		return;
+		return true;
 	}
 	else
 	{
@@ -177,7 +169,7 @@ function submitOrder(bookName,bquantity,bbuyer)
 						
 				}
 				//update json for buyer 
-				editJson(salerName[bbuyer.value], Number(quantity));
+				editJson(salerName[buyer], Number(quantity));
 			}
 			else
 			{
@@ -191,13 +183,14 @@ function submitOrder(bookName,bquantity,bbuyer)
 					// remove name and quantity from BooksName Array and booksQuantity Array
 					booksName.splice(index, 1);
 					booksQuantity.splice(index, 1);
-						
+					booksPrice.splice(index,1);
 				}
+
 				booksSold.push(name);
 				soldQuantity.push(quantity);
 
 				//update json for buyer 
-				editJson(salerName[bbuyer.value], Number(quantity));
+				editJson(salerName[buyer], Number(quantity));
 			}
 		}
 		else
@@ -212,66 +205,115 @@ function submitOrder(bookName,bquantity,bbuyer)
 				// remove name and quantity from BooksName Array and booksQuantity Array
 				booksName.splice(index, 1);
 				booksQuantity.splice(index, 1);
-						
+				booksPrice.splice(index,1);		
 			}
 
 			booksSold.push(name);
 			soldQuantity.push(quantity);
 
 			//update json for buyer 
-			editJson(salerName[bbuyer.value], Number(quantity));
+			editJson(salerName[buyer], Number(quantity));
 
 		}	
 	}
-	//reload drop drop down
-	loadDropDown( document.getElementById("saler"),document.getElementById("bookName"));
 
-	alert("Successfully Done");
 }
 
-
-// Adding Book Name , No of Books and Price of Books in book Store
-function AddBookInStore()
+// dealing  buy Books 
+function submitOrderForm(bookName,bquantity,bbuyer)
 {
-	
-	var name = (document.getElementById("bName").value).toLowerCase();
-	var quantity = Number(document.getElementById("bQuantityy").value);
-	var price = Number(document.getElementById("bPrice").value);
 
-	if(quantity == 0 || price == 0 || name =="" )
+	var quantity = Number(bquantity.value); 
+	
+	if(submitOrder(bookName.value,quantity,bbuyer.value))
 	{
-		if(name =="" )
+		if(index == -1)
 		{
-			$("#bName").tooltip('show');
+			$("#bookName").tooltip('show');
 			
 		}
 		else if(quantity == 0)
 		{
-			$("#bQuantityy").tooltip('show');
+			$("#AddBookQuantity").tooltip('show');
 		}
 		else
 		{
-			$("#bPrice").tooltip('show');
+			$("#saler").tooltip('show');
 		}
 		return;
 	}
 
+	
+	//reload drop drop down//
+	loadDropDown( document.getElementById("saler"),document.getElementById("bookName"));
+
+	// erase  div
+	document.getElementById("showResults").innerHTML = "";
+	document.getElementById("showAllBooks").innerHTML = "";
+
+	alert("Successfully Done");
+}
+
+//this function after checking feasibility will add book in store
+function addBook(name,quantity,price)
+{
+	//input fields of Add Book Block is empty
+	if(quantity == 0 || price == 0 || name =="" )
+	{
+		return true;
+	}
+	// if already have book in store(BooksName[] array)
 	if(booksName.indexOf(name) > -1)
 	{
 		findName = name;
 		var indexOfName = booksName.findIndex(checkIndex);
 		booksQuantity[indexOfName] = booksQuantity[indexOfName] + quantity;
 	}
-	else{
+	else
+	{
 		booksName.push(name);
 		booksQuantity.push(quantity);
 		booksPrice.push(price);
 	}
+	return false;
+}
+
+
+
+// This will get values from Add_book_In_Store_form and calling addBook()
+function AddBookInStoreForm()
+{
+	var name = (document.getElementById("AddBookName").value).toLowerCase();
+	var quantity = Number(document.getElementById("AddBookQuantity").value);
+	var price = Number(document.getElementById("addBookPrice").value);
+
+
+	var AddBookReturn = addBook(name,quantity,price);
+	if(AddBookReturn)
+	{
+		if(name =="" )
+		{
+			$("#AddBookName").tooltip('show');
+			
+		}
+		else if(quantity == 0)
+		{
+			$("#AddBookQuantity").tooltip('show');
+		}
+		else
+		{
+			$("#addBookPrice").tooltip('show');
+		}
+		return false;
+	}
+
+
+
 	loadDropDown( document.getElementById("saler"),document.getElementById("bookName"));
 
-	document.getElementById("bName").value = null;
+	document.getElementById("AddBookName").value = null;
 	document.getElementById("bQuantity").innerHTML = "";
-	document.getElementById("bPrice").value = null;
+	document.getElementById("addBookPrice").value = null;
 	alert("Successfully Done");
 }
 
@@ -349,37 +391,37 @@ $(document).ready(function() {
     }
   });
 
-  $('#bName').keyup(function(e) {
+  $('#AddBookName').keyup(function(e) {
     if(e.keyCode === 13) {
-		AddBookInStore()
+		AddBookInStoreForm();
     }
   });
 
-   $('#bQuantityy').keyup(function(e) {
-   	if(document.getElementById("bQuantityy").value>30)
+   $('#AddBookQuantity').keyup(function(e) {
+   	if(document.getElementById("AddBookQuantity").value>30)
    	{
    		alert("you are not allow to enter value greater than 30");
-   		document.getElementById("bQuantityy").value = 30;
+   		document.getElementById("AddBookQuantity").value = 30;
    	}
     if(e.keyCode === 13) {
-		AddBookInStore()
+		AddBookInStoreForm();
     }
   });
 
-   $('#bPrice').keyup(function(e) {
-   	if(document.getElementById('bPrice').value>30)
+   $('#addBookPrice').keyup(function(e) {
+   	if(document.getElementById('addBookPrice').value>30)
    	{
    		alert("you are not allow to enter value greater than 30");
-   		document.getElementById('bPrice').value = 30;
+   		document.getElementById('addBookPrice').value = 30;
    	}
     if(e.keyCode === 13) {
-		AddBookInStore()
+		AddBookInStoreForm();
     }
   });
 
     $('#bookName').keyup(function(e) {
     if(e.keyCode === 13) {
-		AddBookInStore()
+		AddBookInStoreForm();
     }
   });
 
@@ -390,13 +432,13 @@ $(document).ready(function() {
    		document.getElementById('bQuantity').value = 30;
    	}
     if(e.keyCode === 13) {
-		AddBookInStore()
+		AddBookInStoreForm();
     }
   });
 
    $('#saler').keyup(function(e) {
     if(e.keyCode === 13) {
-		AddBookInStore()
+		AddBookInStoreForm();
     }
   });
 
@@ -421,56 +463,6 @@ $(document).ready(function() {
 
 });
 
-//perform search and also displaying results
-function search(bookName)
-{			
-	bookName = bookName.toLowerCase();
-	var counter = 0;
-	var flage = true;
 
-	//in case user have All books record on web it will erase div of id = showAllBooks
-	document.getElementById("showAllBooks").innerHTML = "";
-
-	var div = document.getElementById("showResults");
-	var htmlElements = "";
-	var finalstring = "<h3 style='text-align:center'> Search Results</h3>";;
-
-		for(var i = 0 ; i<booksName.length; i++)
-		{
-			if(booksName[i] == undefined) 
-			{
-				break;
-			}
-			else if((booksName[i]).toLowerCase().includes(bookName))
-			{		
-				htmlElements = "<div class='col-md-3' style='margin-top:15px;'><div class='row'><img src='../image/1.jpg' height='270px' width='85%' alt='image not found'/></div><div class='row'><p style='font-weight: bold; font-size: 15px;'>"+booksName[counter]+"</p> <p><span style='font-weight: bold; font-size: 13px'>Price:</span>"+booksPrice[counter]+" .$</p></div> <div class='row'><input class='btn  btn-info' type='button' data-toggle='modal' data-target='#myModal' value='Buy'></input></div></div>";
-				finalstring = finalstring + htmlElements;
-				flage = false;
-			}	
-			counter++;	
-		}
-
-		div.innerHTML = finalstring;
-
-	if (flage)
-	{
-		if(booksName.length == 0)
-		{
-			alert("Store is empty");
-		}
-		else
-		{
-			alert("No Match found");
-		}
-
-	}
-	else
-	{
-		$('html, body').animate({
-        scrollTop: $("#showSearchResult").offset().top
-    }, 1500);
-	}
-
-}
 
 
